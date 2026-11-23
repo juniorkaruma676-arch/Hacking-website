@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b1020">
+  <meta name="description" content="A clear Android phone recovery guide for forgotten screen locks, Google account recovery and Factory Reset Protection after a reset or firmware flash.">
+  <title>DroidCare — Android Recovery Center</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080c16;
+      --panel: #111827;
+      --panel-2: #172235;
+      --line: rgba(173, 191, 220, .15);
+      --text: #f4f7fb;
+      --muted: #a8b4c7;
+      --blue: #69a7ff;
+      --blue-2: #3478e5;
+      --green: #55d6a3;
+      --amber: #ffc66d;
+      --red: #ff7777;
+      --radius: 20px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; min-height: 100vh; color: var(--text);
+      background: radial-gradient(900px 520px at 90% -10%, rgba(52,120,229,.23), transparent 60%), var(--bg);
+      line-height: 1.6;
+    }
+    a { color: #91bdff; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    button, select { font: inherit; }
+    .wrap { width: min(1080px, calc(100% - 32px)); margin: 0 auto; }
+    .topbar { padding: 18px 0; border-bottom: 1px solid var(--line); background: rgba(8,12,22,.75); backdrop-filter: blur(16px); position: sticky; top: 0; z-index: 10; }
+    .topbar-inner { display:flex; justify-content:space-between; align-items:center; gap:16px; }
+    .brand { display:flex; align-items:center; gap:11px; font-weight:800; letter-spacing:.04em; }
+    .brand-mark { width:38px; height:38px; display:grid; place-items:center; border-radius:12px; background:linear-gradient(145deg,#438ef7,#2056b5); box-shadow:0 8px 24px rgba(52,120,229,.3); }
+    .brand-mark svg { width:22px; height:22px; }
+    .brand small { display:block; color:var(--muted); font-weight:600; letter-spacing:.12em; font-size:9px; }
+    .top-link { font-size:13px; font-weight:700; color:var(--muted); }
+    .hero { padding: clamp(44px, 8vw, 84px) 0 38px; }
+    .eyebrow { color:#8eb9ff; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.18em; }
+    h1 { margin:12px 0 14px; max-width:760px; font-size:clamp(36px,7vw,66px); line-height:1.03; letter-spacing:-.055em; }
+    .hero p { max-width:690px; color:var(--muted); font-size:clamp(15px,2vw,18px); margin:0; }
+    .hero-actions { display:flex; flex-wrap:wrap; gap:12px; margin-top:26px; }
+    .btn { border:0; border-radius:12px; padding:12px 17px; font-weight:800; cursor:pointer; transition:transform .15s, filter .15s; display:inline-flex; align-items:center; justify-content:center; gap:8px; }
+    .btn:hover { transform:translateY(-1px); filter:brightness(1.08); }
+    .btn-primary { color:white; background:linear-gradient(135deg,var(--blue-2),#245fc2); box-shadow:0 9px 24px rgba(52,120,229,.22); }
+    .btn-secondary { color:var(--text); background:var(--panel-2); border:1px solid var(--line); }
+    .notice { display:flex; gap:13px; padding:16px; margin:18px 0 34px; border:1px solid rgba(255,198,109,.28); border-radius:16px; background:rgba(255,198,109,.07); }
+    .notice-icon { flex:none; color:var(--amber); font-size:20px; }
+    .notice strong { display:block; margin-bottom:3px; }
+    .notice p { margin:0; color:#d1c2a9; font-size:13px; }
+    section { padding:30px 0; }
+    .section-head { margin-bottom:18px; }
+    .section-head h2 { margin:0 0 5px; font-size:clamp(23px,4vw,32px); letter-spacing:-.035em; }
+    .section-head p { color:var(--muted); margin:0; font-size:14px; }
+    .panel { background:linear-gradient(160deg,rgba(23,34,53,.95),rgba(15,23,38,.96)); border:1px solid var(--line); border-radius:var(--radius); padding:clamp(18px,3.5vw,28px); box-shadow:0 18px 50px rgba(0,0,0,.15); }
+    .finder-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .field label { display:block; font-size:12px; color:#c5d0df; font-weight:800; margin-bottom:8px; }
+    select { width:100%; color:var(--text); background:#0c1422; border:1px solid var(--line); border-radius:12px; padding:13px 40px 13px 13px; outline:none; }
+    select:focus { border-color:var(--blue); box-shadow:0 0 0 3px rgba(105,167,255,.13); }
+    .finder-actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:18px; }
+    #result { margin-top:18px; display:none; }
+    .result-box { padding:18px; border:1px solid rgba(105,167,255,.28); border-radius:15px; background:rgba(54,111,195,.09); }
+    .result-box h3 { margin:0 0 8px; }
+    .result-box ol { padding-left:21px; margin:8px 0 0; }
+    .result-box li { margin:8px 0; color:#d7e0ed; }
+    .cards { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+    .card { padding:20px; border-radius:18px; background:var(--panel); border:1px solid var(--line); min-height:190px; }
+    .card-icon { width:40px; height:40px; border-radius:12px; display:grid; place-items:center; color:#a9cbff; background:rgba(105,167,255,.12); font-size:19px; margin-bottom:15px; }
+    .card h3 { margin:0 0 7px; font-size:17px; }
+    .card p { color:var(--muted); margin:0; font-size:13px; }
+    .steps { display:grid; gap:12px; }
+    .step { display:grid; grid-template-columns:34px 1fr; gap:13px; padding:15px; background:rgba(255,255,255,.025); border:1px solid var(--line); border-radius:14px; }
+    .step-num { height:30px; width:30px; border-radius:10px; display:grid; place-items:center; background:rgba(85,214,163,.13); color:var(--green); font-size:13px; font-weight:900; }
+    .step h3 { margin:0 0 3px; font-size:15px; }
+    .step p { margin:0; color:var(--muted); font-size:13px; }
+    .two-col { display:grid; grid-template-columns:1.15fr .85fr; gap:15px; }
+    .callout { border:1px solid rgba(255,119,119,.25); background:rgba(255,119,119,.055); border-radius:15px; padding:17px; }
+    .callout strong { color:#ffaaaa; }
+    .callout p { margin:5px 0 0; font-size:13px; color:#d2baba; }
+    details { border-bottom:1px solid var(--line); padding:14px 0; }
+    details:last-child { border:0; }
+    summary { cursor:pointer; font-size:14px; font-weight:800; list-style:none; display:flex; justify-content:space-between; gap:15px; }
+    summary::-webkit-details-marker { display:none; }
+    summary:after { content:'+'; color:var(--blue); font-size:19px; line-height:1; }
+    details[open] summary:after { content:'−'; }
+    details p { margin:10px 0 0; color:var(--muted); font-size:13px; }
+    .resources { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .resource { display:flex; align-items:center; justify-content:space-between; gap:15px; padding:15px; background:var(--panel); border:1px solid var(--line); border-radius:13px; font-size:13px; font-weight:800; }
+    .resource span { color:var(--muted); font-size:11px; display:block; font-weight:500; }
+    .resource b { color:var(--blue); font-size:18px; }
+    footer { margin-top:42px; padding:25px 0 calc(25px + env(safe-area-inset-bottom)); border-top:1px solid var(--line); color:var(--muted); font-size:12px; }
+    .footer-inner { display:flex; justify-content:space-between; gap:15px; flex-wrap:wrap; }
+    .fineprint { max-width:700px; }
+    @media (max-width:760px) { .cards { grid-template-columns:1fr; } .card { min-height:0; } .two-col { grid-template-columns:1fr; } }
+    @media (max-width:540px) { .wrap { width:min(100% - 24px,1080px); } .finder-grid,.resources { grid-template-columns:1fr; } .top-link { font-size:11px; } .hero { padding-top:42px; } .btn { width:100%; } .hero-actions,.finder-actions { display:grid; grid-template-columns:1fr; } }
+    @media print { :root { color-scheme:light; } body { background:white; color:#101828; } .topbar,.hero-actions,.finder-actions,footer { display:none!important; } .panel,.card,.resource,.step { background:white; color:#101828; box-shadow:none; border:1px solid #ccc; break-inside:avoid; } p,li,.section-head p,.card p,.step p { color:#344054!important; } a { color:#174ea6; } }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></svg>
+        </div>
+        <div>DROIDCARE <small>ANDROID RECOVERY CENTER</small></div>
+      </div>
+      <a class="top-link" href="#official-help">OFFICIAL HELP ↗</a>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="hero">
+      <div class="eyebrow">Clear steps. Safer recovery.</div>
+      <h1>Get back into<br>your Android phone.</h1>
+      <p>Practical guidance for forgotten screen locks, Google account access, phones that were flashed, and Factory Reset Protection (FRP).</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#recovery-finder">Find my recovery steps <span>→</span></a>
+        <button class="btn btn-secondary" type="button" onclick="window.print()">Print / save guide</button>
+      </div>
+    </div>
+
+    <div class="notice" role="note">
+      <div class="notice-icon">ⓘ</div>
+      <div><strong>Important: a lock screen is not a password-recovery screen.</strong><p>Android does not display a forgotten PIN, pattern or password. Some recovery and reset options erase local data. Do not reset the phone until you know which Google account was previously synced to it and understand the data-loss risk.</p></div>
+    </div>
+
+    <section id="recovery-finder">
+      <div class="section-head"><h2>Recovery guide finder</h2><p>Choose the phone brand and the issue. You do not need to enter any password, PIN, pattern or verification code.</p></div>
+      <div class="panel">
+        <div class="finder-grid">
+          <div class="field">
+            <label for="brand">PHONE BRAND</label>
+            <select id="brand">
+              <option value="any">Select phone brand</option>
+              <option>Samsung</option><option>Google Pixel</option><option>Xiaomi / Redmi / POCO</option>
+              <option>Motorola</option><option>Tecno</option><option>Infinix</option><option>itel</option><option>Other Android</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="issue">WHAT HAPPENED?</label>
+            <select id="issue">
+              <option value="lock">Forgotten screen PIN / pattern / password</option>
+              <option value="google">Forgot Google / Gmail account password</option>
+              <option value="saved">View saved website / app passwords</option>
+              <option value="frp">FRP / Google verification after reset or flashing</option>
+              <option value="flash">Phone was flashed and will not finish setup</option>
+              <option value="boot">Phone is stuck restarting / boot looping</option>
+            </select>
+          </div>
+        </div>
+        <div class="finder-actions">
+          <button class="btn btn-primary" type="button" id="showSteps">Show recovery steps</button>
+          <button class="btn btn-secondary" type="button" id="resetFinder">Clear selection</button>
+        </div>
+        <div id="result" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head"><h2>Choose the right recovery path</h2><p>Different locks protect different parts of your device. Start with the problem you actually see.</p></div>
+      <div class="cards">
+        <article class="card"><div class="card-icon">▦</div><h3>Forgotten screen lock</h3><p>Check whether a biometric unlock or an already-authorised trusted unlock method is still available. Otherwise, use the manufacturer's documented recovery process. A reset may erase data.</p></article>
+        <article class="card"><div class="card-icon">◎</div><h3>Google account recovery</h3><p>Recover the Google account itself using Google's account recovery service. Use a familiar device, browser and location where possible.</p></article>
+        <article class="card"><div class="card-icon">🔑</div><h3>Saved account passwords</h3><p>View passwords that you previously saved to your own Google Password Manager after signing in and completing Google's identity check. This does not reveal the phone's screen-lock PIN or pattern.</p></article>
+        <article class="card"><div class="card-icon">⌑</div><h3>FRP after flashing</h3><p>Flashing firmware or resetting through recovery does not remove ownership verification. Complete setup with a Google account previously added and synced to the phone.</p></article>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head"><h2>FRP: what to do after a flash</h2><p>Follow these steps when setup asks you to verify a Google account after a reset or firmware flash.</p></div>
+      <div class="two-col">
+        <div class="panel steps">
+          <div class="step"><div class="step-num">1</div><div><h3>Connect to a trusted Wi-Fi network</h3><p>Keep the phone charged and connected to the internet while completing setup.</p></div></div>
+          <div class="step"><div class="step-num">2</div><div><h3>Use an account previously synced to this phone</h3><p>Sign in with a Google account that was added to the device before it was reset. A guest account does not satisfy this requirement.</p></div></div>
+          <div class="step"><div class="step-num">3</div><div><h3>If the Google password was forgotten, recover it</h3><p>Use Google's official recovery page. After a recent password change, Google advises waiting 24 hours before factory resetting; some device support guidance also notes a verification cool-down after a password change.</p></div></div>
+          <div class="step"><div class="step-num">4</div><div><h3>Use proof of ownership for unresolved cases</h3><p>Contact the phone maker or an authorised service centre with the device and proof of purchase. Ask them to verify ownership and advise on the supported process.</p></div></div>
+        </div>
+        <aside class="callout"><strong>There is no universal FRP code.</strong><p>FRP is an anti-theft ownership check. A firmware flash, factory reset, or third-party “unlock” utility is not proof of ownership and is not a supported substitute for the previously synced account. Avoid services asking you to send passwords, one-time codes, or remote access to your phone.</p></aside>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head"><h2>Before you factory reset</h2><p>Take a moment to prevent avoidable data loss and another lockout.</p></div>
+      <div class="panel steps">
+        <div class="step"><div class="step-num">✓</div><div><h3>Confirm the Google account</h3><p>Make sure you know an account that was previously added and synced on the phone. Test signing in on another trusted device first.</p></div></div>
+        <div class="step"><div class="step-num">✓</div><div><h3>Understand what will be erased</h3><p>A factory reset removes locally stored data, apps and app data. Cloud-synced data may be restored after you sign back in, depending on what was backed up.</p></div></div>
+        <div class="step"><div class="step-num">✓</div><div><h3>Use the manufacturer's instructions</h3><p>Button combinations and menus vary by exact model. Confirm the model number and use the official support instructions before proceeding.</p></div></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head"><h2>Frequently asked questions</h2></div>
+      <div class="panel">
+        <details><summary>Can this website show me my forgotten PIN or pattern?</summary><p>No. The screen-lock PIN, password or pattern is protected by Android and is not readable by a website. For supported options, use the device maker's instructions. A reset may erase local data and can still trigger FRP.</p></details>
+        <details><summary>Can I view passwords saved to my Google account?</summary><p>Yes. Open Google Password Manager while signed in to your own Google Account. Google requires you to sign in again to reveal saved passwords. Only passwords that were previously saved there will appear; this does not reveal a phone's screen-lock PIN, pattern or password.</p><p><a href="https://passwords.google/" target="_blank" rel="noopener noreferrer">Open Google Password Manager ↗</a></p></details>
+        <details><summary>Will flashing the phone remove FRP?</summary><p>No. A firmware flash or reset can still leave the device requiring a previously synced Google account during setup. Google's device-protection process requires an eligible account previously added and synced to that device, or its supported screen-lock verification path.</p></details>
+        <details><summary>What if I bought the phone second-hand?</summary><p>Ask the previous owner to complete the account-removal and handover process in person or through the manufacturer's supported process. If that is not possible, contact the manufacturer or an authorised service centre with your proof of purchase.</p></details>
+        <details><summary>What if I forgot both the screen lock and Google account?</summary><p>Start with Google Account Recovery. If you still cannot verify ownership on the device, contact the manufacturer or an authorised service centre with proof of purchase. A reset may erase data and still leave FRP active.</p></details>
+        <details><summary>Does DroidCare need my password or unlock code?</summary><p>No. This page runs locally in your browser and has no login form, password field, analytics tracker or server submission. Use Google's own sign-in screen on passwords.google.com to view saved credentials. Never type your Google password, PIN, pattern or verification code into a recovery guide website.</p></details>
+      </div>
+    </section>
+
+    <section id="official-help">
+      <div class="section-head"><h2>Official recovery resources</h2><p>Use these verified support pages for account recovery and Android device protection.</p></div>
+      <div class="resources">
+        <a class="resource" href="https://support.google.com/accounts/answer/7682439" target="_blank" rel="noopener noreferrer"><div>Google Account Recovery<span>Forgotten Google or Gmail password</span></div><b>↗</b></a>
+        <a class="resource" href="https://passwords.google/" target="_blank" rel="noopener noreferrer"><div>Google Password Manager<span>View saved account passwords after re-authentication</span></div><b>↗</b></a>
+        <a class="resource" href="https://support.google.com/android/answer/9459346" target="_blank" rel="noopener noreferrer"><div>Android Device Protection<span>Google's FRP and ownership-verification guide</span></div><b>↗</b></a>
+        <a class="resource" href="https://support.google.com/android/answer/6088915" target="_blank" rel="noopener noreferrer"><div>Android Factory Reset Help<span>Reset information and data-loss guidance</span></div><b>↗</b></a>
+        <a class="resource" href="https://www.samsung.com/us/support/answer/ANS10003349/" target="_blank" rel="noopener noreferrer"><div>Samsung Device Protection<span>Galaxy FRP and service-centre guidance</span></div><b>↗</b></a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap footer-inner">
+      <div><strong>DROIDCARE</strong> · Android Recovery Center</div>
+      <div class="fineprint">Independent informational guide. Not affiliated with Google, Android, Samsung or any phone manufacturer. Recovery options vary by model, Android version, region and account status. Never share passwords or verification codes with third parties.</div>
+    </div>
+  </footer>
+
+  <script>
+    (() => {
+      const brand = document.getElementById('brand');
+      const issue = document.getElementById('issue');
+      const result = document.getElementById('result');
+      const show = document.getElementById('showSteps');
+      const clear = document.getElementById('resetFinder');
+
+      const guides = {
+        lock: {
+          title: 'Forgotten screen lock',
+          steps: [
+            'If fingerprint or face unlock is still offered and set up, try that first. Some devices require the original PIN, pattern or password after a restart.',
+            'If the phone is still open through an existing trusted session, back up photos and important files immediately. Do not restart or reset before backing up.',
+            'Check the exact model on the phone maker’s official support site for its current locked-device procedure. Android does not reveal the saved screen-lock secret.',
+            'If a factory reset is the documented option, understand that local data may be erased and that the phone may request a previously synced Google account during setup.'
+          ]
+        },
+        saved: {
+          title: 'View passwords saved to your Google Account',
+          steps: [
+            'Open Google Password Manager at passwords.google.com. Use only your own Google Account; this website never asks you to type a password or verification code into it.',
+            'Sign in to the Google Account where you previously saved the website or app credentials. Google may ask you to authenticate again before showing a password.',
+            'Select a saved website or app entry, then use Google Password Manager’s Show password control. Only credentials that were saved to that account will be listed.',
+            'If an entry is missing, check the Google Account selected in Chrome and the device. Passwords stored locally on another device may not be synced to this account.',
+            'Google Password Manager does not contain or reveal the Android screen-lock PIN, pattern or device password.'
+          ]
+        },
+        google: {
+          title: 'Forgotten Google account password',
+          steps: [
+            'Open Google Account Recovery using the official link below. Do not use a third-party password-recovery service.',
+            'Answer the account ownership questions as accurately as possible. Use a familiar device, browser and location where you normally sign in.',
+            'After regaining access, confirm that the account is the one previously synced to the locked phone.',
+            'If you recently changed the Google password, allow the applicable security waiting period before trying device verification again. Google advises waiting 24 hours before a factory reset after a recent password change.'
+          ]
+        },
+        frp: {
+          title: 'FRP / Google verification after reset or flashing',
+          steps: [
+            'Connect the phone to a reliable Wi-Fi network and continue setup.',
+            'Enter a Google account that was previously added and synced to this device (not a guest account).',
+            'If you do not remember the password, recover it through Google Account Recovery. If it was just changed, allow the security cool-down period before retrying.',
+            'If you cannot identify or access the previously synced account, contact the manufacturer or an authorised service centre with proof of purchase.'
+          ]
+        },
+        flash: {
+          title: 'Phone flashed and setup is blocked',
+          steps: [
+            'Identify the exact model number and confirm that the firmware installed was made for that exact model and regional variant.',
+            'If setup displays Google account verification, complete FRP with an account previously added and synced to the device. Flashing does not remove this ownership check.',
+            'If setup fails for a firmware or boot issue rather than account verification, stop repeated flashing and consult the manufacturer’s official firmware/service guidance.',
+            'For an ownership-verification problem you cannot resolve, take proof of purchase to an authorised service centre.'
+          ]
+        },
+        boot: {
+          title: 'Phone stuck restarting or boot looping',
+          steps: [
+            'Charge the phone with a known-good charger and cable. Remove accessories and any removable SD card, if the manufacturer recommends doing so.',
+            'Note the exact model, Android version if known, and any error message on screen.',
+            'Use the manufacturer’s official troubleshooting steps for that model. Avoid installing firmware for a different model or region.',
+            'If the phone contains important data, ask an authorised repair provider about data-preserving diagnostics before agreeing to a reset or reflash.'
+          ]
+        }
+      };
+
+      show.addEventListener('click', () => {
+        const guide = guides[issue.value];
+        const selectedBrand = brand.value === 'any' ? 'your Android phone' : brand.value;
+        result.innerHTML = '';
+        const box = document.createElement('div');
+        box.className = 'result-box';
+        const heading = document.createElement('h3');
+        heading.textContent = `${guide.title} — ${selectedBrand}`;
+        const intro = document.createElement('p');
+        intro.textContent = 'Recommended next steps:';
+        const list = document.createElement('ol');
+        guide.steps.forEach(text => {
+          const item = document.createElement('li');
+          item.textContent = text;
+          list.appendChild(item);
+        });
+        box.append(heading, intro, list);
+        result.appendChild(box);
+        result.style.display = 'block';
+        result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+
+      clear.addEventListener('click', () => {
+        brand.value = 'any';
+        issue.value = 'lock';
+        result.replaceChildren();
+        result.style.display = 'none';
+      });
+    })();
+  </script>
+</body>
+</html>
